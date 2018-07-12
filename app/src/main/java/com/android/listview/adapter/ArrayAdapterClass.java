@@ -14,6 +14,7 @@ import com.android.listview.R;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ArrayAdapterClass extends ArrayAdapter<String> {
@@ -22,7 +23,7 @@ public class ArrayAdapterClass extends ArrayAdapter<String> {
     Context context;
     TextView textView;
 
-    public ArrayAdapterClass(@NonNull Context context, int resource, List<String> list) {
+    public ArrayAdapterClass(@NonNull Context context, int resource,int id, List<String> list) {
         super(context, resource);
         this.context = context;
         this.list = list;
@@ -37,13 +38,6 @@ public class ArrayAdapterClass extends ArrayAdapter<String> {
             convertView = inflater.inflate(R.layout.listrow,parent,false);
             viewHolder = new ViewHolder(convertView);
             convertView.setTag(viewHolder);
-            convertView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Snackbar.make(view, "Here's a Snackbar with name"+list.get(position), Snackbar.LENGTH_SHORT)
-                                                    .setAction("Action", null).show();
-                }
-            });
         }else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
@@ -52,8 +46,18 @@ public class ArrayAdapterClass extends ArrayAdapter<String> {
     }
 
     @Override
+    public String getItem(int position) {
+        return list.get(position);
+    }
+
+    @Override
     public int getCount() {
         return list.size();
+    }
+
+    public void notifyDataSet(ArrayList<String> list) {
+        this.list = list;
+        notifyDataSetChanged();
     }
 
     class ViewHolder{
