@@ -12,20 +12,41 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <Button
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/button1"
-            android:onClick="click"
-            android:text="CLICK"
-            />
+            android:orientation="horizontal"
+            >
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/arraylist"
+                android:onClick="click"
+                android:text="ArrayList"
+                />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/imagelist"
+                android:onClick="click"
+                android:text="ImageList"
+                />
+            <ImageView
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:id="@+id/imageView"
+                />
+            <com.android.volley.toolbox.NetworkImageView
+                android:id="@+id/networkImageView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
 
         <!--android:id="@android:id/list"-->
 
         <ListView
             android:id="@+id/namelist"
-
-
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 

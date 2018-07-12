@@ -1,24 +1,52 @@
 package com.android.listview;
 
 import android.app.ListActivity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.android.listview.adapter.ArrayAdapterClass;
+import com.android.listview.volleyutils.VolleySingleton;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.ImageRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.NetworkImageView;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
+    final String TAG = "Volley";
+
     ListView nameList;
     ArrayList<String> list;
     ArrayAdapterClass adapter;
+
+    RequestQueue requestQueue;
+
+    private ImageLoader imageLoader;
+    private NetworkImageView imageView;
+    private static final String IMAGE_URL = "https://inducesmile.com/wp-content/uploads/2015/03/mobile12.jpg";
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,8 +54,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         nameList = findViewById(R.id.namelist);
+        requestQueue = Volley.newRequestQueue(this);
 
-        setList();
+        imageLoader = VolleySingleton.getInstance(getApplicationContext()).getImageLoader();
+        imageView = (NetworkImageView) findViewById(R.id.networkImageView);
+
+        imageLoader.get(IMAGE_URL,ImageLoader.getImageListener(imageView,R.mipmap.ic_launcher,
+                R.mipmap.ic_launcher));
+        imageView.setImageUrl(IMAGE_URL, imageLoader);
+
 
     }
 
@@ -78,10 +113,73 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void click(View view){
-       list.add("Amit");
+        switch (view.getId()){
+            case R.id.arraylist:{
+                setList();
+                break;
+            }
+            case R.id.imagelist:{
+                setImageList();
+                break;
+            }
+        }
+    }
 
-        adapter.notifyDataSet(list);
+    private void setImageList() {
+        /*Json Request*/
+        String URL = "https://inducesmile.com/wp-content/uploads/2015/03/mobile.jpg";
+        ImageRequest imageRequest = new ImageRequest(URL, new Response.Listener<Bitmap>() {
+            @Override
+            public void onResponse(Bitmap response) {
+                // Assign the response to an ImageView
+                ImageView imageView = (ImageView) findViewById(R.id.imageView);
+                imageView.setImageBitmap(response);
+            }
+        }, 100, 100, null, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                ImageView imageView = (ImageView) findViewById(R.id.imageView);
+//                Bitmap bmp = createBitmapFromResource();
+                Drawable d = getResources().getDrawable(R.mipmap.ic_launcher);
+                imageView.setImageDrawable(d);
+//                Log.d(TAG," size:: "+ bmp.getByteCount());
+//                imageView.setImageBitmap(bmp);
+                Log.d(TAG,"onErrorResponse");
+            }
+        });
+        //add request to queue
+        requestQueue.add(imageRequest);
+    }
 
+    private Bitmap createBitmapFromResource() {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        Bitmap bmp = BitmapFactory.decodeResource(getResources(),R.mipmap.ic_launcher,options);
+        options.inSampleSize = calculateInSampleSize(options, 100, 100);
+        options.inJustDecodeBounds = false;
+        return  BitmapFactory.decodeResource(getResources(),R.mipmap.ic_launcher,options);
+    }
 
+    public static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) >= reqHeight
+                    && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
     }
 }
